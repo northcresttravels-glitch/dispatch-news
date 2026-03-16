@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Pro Drafter — Independent News</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family: Georgia, 'Times New Roman', serif; background:#f0efe9; color:#111; }
+a { text-decoration:none; color:inherit; }
+img { display:block; }
+
+.topbar { background:#0a0a0a; color:#666; padding:5px 0; font-size:11px; font-family:Arial,sans-serif; border-bottom:1px solid #222; }
+.topbar-inner { max-width:1240px; margin:0 auto; padding:0 20px; display:flex; justify-content:space-between; align-items:center; }
+.topbar-right { display:flex; gap:24px; }
+
+.header { background:#fff; border-bottom:3px solid #0a0a0a; }
+.header-inner { max-width:1240px; margin:0 auto; padding:20px 20px 16px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:16px; }
+.logo { font-size:48px; font-weight:900; font-family:'Times New Roman',serif; letter-spacing:-2px; line-height:1; color:#0a0a0a; }
+.logo span { color:#b00020; }
+.logo-rule { height:3px; background:#0a0a0a; margin:6px 0 4px; }
+.logo-sub { font-family:Arial,sans-serif; font-size:10px; letter-spacing:0.28em; text-transform:uppercase; color:#999; }
+
+.search-wrap { display:flex; }
+.search-wrap input { width:260px; padding:10px 14px; border:1px solid #ccc; font-size:13px; font-family:Arial,sans-serif; outline:none; color:#111; background:#fafafa; }
+.search-wrap input:focus { border-color:#0a0a0a; background:#fff; }
+.search-wrap button { background:#0a0a0a; color:#fff; border:none; padding:10px 20px; font-size:11px; font-weight:700; font-family:Arial,sans-serif; cursor:pointer; text-transform:uppercase; letter-spacing:0.1em; white-space:nowrap; }
+.search-wrap button:hover { background:#b00020; }
+
+.ticker-wrap { background:#b00020; overflow:hidden; display:none; }
+.ticker-inner { display:flex; align-items:stretch; }
+.ticker-label { background:#7a0015; color:#fff; padding:9px 18px; font-family:Arial,sans-serif; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.18em; white-space:nowrap; display:flex; align-items:center; flex-shrink:0; }
+.ticker-scroll { overflow:hidden; flex:1; }
+.ticker-track { display:flex; width:max-content; animation:ticker 80s linear infinite; padding:9px 0; }
+.ticker-track:hover { animation-play-state:paused; }
+.ticker-item { font-family:Arial,sans-serif; font-size:12px; font-weight:600; color:#fff; padding:0 40px; white-space:nowrap; border-right:1px solid rgba(255,255,255,0.15); cursor:pointer; }
+@keyframes ticker { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+
+.nav-wrap { background:#0a0a0a; border-bottom:2px solid #b00020; }
+.nav-inner { max-width:1240px; margin:0 auto; overflow-x:auto; white-space:nowrap; scrollbar-width:none; }
+.nav-inner::-webkit-scrollbar { display:none; }
+.nav-inner a { display:inline-block; padding:12px 18px; font-size:11px; font-weight:700; color:#888; font-family:Arial,sans-serif; text-transform:uppercase; letter-spacing:0.1em; border-bottom:3px solid transparent; transition:all 0.12s; }
+.nav-inner a:hover { color:#fff; background:#111; }
+.nav-inner a.active { color:#fff; border-bottom-color:#b00020; }
+
+.page { max-width:1240px; margin:0 auto; padding:28px 20px 60px; }
+
+.section-bar { display:flex; justify-content:space-between; align-items:center; border-top:3px solid #0a0a0a; border-bottom:1px solid #ddd; padding:10px 0; margin-bottom:24px; }
+.section-bar h2 { font-size:12px; font-weight:700; font-family:Arial,sans-serif; text-transform:uppercase; letter-spacing:0.18em; }
+.section-bar-right { display:flex; align-items:center; gap:16px; }
+.updated { font-family:Arial,sans-serif; font-size:11px; color:#aaa; }
+.refresh-btn { background:transparent; color:#0a0a0a; border:1px solid #0a0a0a; padding:6px 16px; font-size:11px; font-weight:700; font-family:Arial,sans-serif; text-transform:uppercase; letter-spacing:0.08em; cursor:pointer; transition:all 0.12s; }
+.refresh-btn:hover { background:#0a0a0a; color:#fff; }
+.refresh-btn:disabled { border-color:#ccc; color:#ccc; cursor:not-allowed; }
+
+/* CARDS */
+.news-feed { display:flex; flex-direction:column; gap:2px; }
+
+/* TOP STORY */
+.top-story { background:#fff; cursor:pointer; display:grid; grid-template-columns:1fr 380px; }
+.top-story:hover .card-headline { color:#b00020; }
+.top-story .card-img { height:100%; min-height:320px; overflow:hidden; background:#e4e4e4; order:2; }
+.top-story .card-img img { width:100%; height:100%; object-fit:cover; transition:transform 0.4s; }
+.top-story:hover .card-img img { transform:scale(1.03); }
+.top-story .card-body { padding:28px; order:1; display:flex; flex-direction:column; justify-content:center; }
+.top-story .card-headline { font-size:32px; line-height:1.15; font-family:'Times New Roman',serif; font-weight:900; margin-bottom:14px; color:#0a0a0a; transition:color 0.12s; }
+.top-story .card-deck { font-size:15px; line-height:1.7; color:#444; font-family:Arial,sans-serif; margin-bottom:14px; }
+
+/* ROW OF 3 */
+.card-row { display:grid; grid-template-columns:repeat(3,1fr); gap:2px; }
+
+/* ROW OF 2 */
+.card-row-2 { display:grid; grid-template-columns:repeat(2,1fr); gap:2px; }
+
+/* STANDARD CARD */
+.card { background:#fff; cursor:pointer; overflow:hidden; }
+.card:hover .card-headline { color:#b00020; }
+.card .card-img { width:100%; overflow:hidden; background:#e4e4e4; }
+.card .card-img img { width:100%; height:100%; object-fit:cover; transition:transform 0.4s; }
+.card:hover .card-img img { transform:scale(1.03); }
+.card .card-body { padding:14px 16px 18px; }
+.card.tall .card-img { height:220px; }
+.card.short .card-img { height:160px; }
+
+/* SHARED CARD PARTS */
+.card-eyebrow { display:flex; align-items:center; gap:8px; margin-bottom:6px; flex-wrap:wrap; }
+.card-source { font-family:Arial,sans-serif; font-size:10px; font-weight:700; color:#b00020; text-transform:uppercase; letter-spacing:0.12em; }
+.card-badge { font-family:Arial,sans-serif; font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; padding:2px 6px; }
+.badge-breaking { background:#b00020; color:#fff; }
+.badge-developing { background:#b06000; color:#fff; }
+.badge-analysis { background:#1a5c35; color:#fff; }
+.card-headline { font-size:17px; font-weight:700; line-height:1.3; margin-bottom:8px; font-family:'Times New Roman',serif; color:#0a0a0a; transition:color 0.12s; }
+.card-deck { font-size:13px; line-height:1.6; color:#444; font-family:Arial,sans-serif; margin-bottom:10px; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+.card-meta { font-family:Arial,sans-serif; font-size:11px; color:#aaa; }
+
+/* INLINE CARD (horizontal) */
+.card-inline { background:#fff; cursor:pointer; display:flex; gap:0; border-bottom:1px solid #eee; }
+.card-inline:last-child { border-bottom:none; }
+.card-inline:hover .card-headline { color:#b00020; }
+.card-inline .card-img { width:120px; min-width:120px; height:90px; overflow:hidden; background:#e4e4e4; flex-shrink:0; }
+.card-inline .card-img img { width:100%; height:100%; object-fit:cover; transition:transform 0.4s; }
+.card-inline:hover .card-img img { transform:scale(1.04); }
+.card-inline .card-body { padding:12px 14px; flex:1; }
+.card-inline .card-headline { font-size:14px; line-height:1.3; margin-bottom:4px; }
+.card-inline .card-deck { display:none; }
+
+.loading { text-align:center; padding:80px 0; background:#fff; }
+.spinner { width:28px; height:28px; border:2px solid #e8e8e8; border-top-color:#b00020; border-radius:50%; animation:spin 0.75s linear infinite; margin:0 auto 16px; }
+@keyframes spin { to{transform:rotate(360deg)} }
+.loading p { font-family:Arial,sans-serif; font-size:13px; color:#aaa; letter-spacing:0.05em; }
+.error-msg { background:#fff; border-left:3px solid #b00020; padding:20px 24px; font-family:Arial,sans-serif; font-size:13px; color:#b00020; }
+
+/* ARTICLE */
+#articlePage { display:none; background:#fff; min-height:100vh; }
+#articlePage.open { display:block; }
+.art-topbar { background:#0a0a0a; border-bottom:2px solid #b00020; }
+.art-topbar-inner { max-width:1240px; margin:0 auto; padding:10px 20px; display:flex; align-items:center; justify-content:space-between; }
+.art-back { background:none; border:1px solid #444; color:#fff; padding:7px 16px; font-size:11px; font-weight:700; cursor:pointer; text-transform:uppercase; letter-spacing:0.1em; font-family:Arial,sans-serif; transition:all 0.12s; }
+.art-back:hover { background:#b00020; border-color:#b00020; }
+.art-logo { font-size:22px; font-weight:900; font-family:'Times New Roman',serif; color:#fff; }
+.art-logo span { color:#b00020; }
+.art-date-top { font-size:11px; color:#666; font-family:Arial,sans-serif; }
+.art-hero-wrap { width:100%; background:#111; max-height:520px; overflow:hidden; }
+.art-hero { width:100%; max-height:520px; object-fit:cover; }
+.art-body-wrap { max-width:780px; margin:0 auto; padding:44px 20px 80px; }
+.art-kicker { font-family:Arial,sans-serif; font-size:10px; font-weight:700; color:#b00020; text-transform:uppercase; letter-spacing:0.18em; margin-bottom:12px; }
+.art-headline { font-size:clamp(26px,4vw,44px); font-weight:900; line-height:1.08; font-family:'Times New Roman',serif; color:#0a0a0a; margin-bottom:16px; }
+.art-meta { font-family:Arial,sans-serif; font-size:12px; color:#aaa; padding-bottom:16px; border-bottom:1px solid #eee; display:flex; gap:12px; flex-wrap:wrap; }
+.art-meta-source { color:#0a0a0a; font-weight:700; }
+.art-deck { font-size:19px; line-height:1.65; color:#222; font-family:Georgia,serif; border-bottom:1px solid #eee; padding:18px 0; margin-bottom:30px; }
+.art-text p { font-size:17px; line-height:1.9; color:#1a1a1a; font-family:Georgia,serif; margin-bottom:22px; }
+.art-text p:first-child::first-letter { font-size:58px; font-weight:900; float:left; line-height:0.82; margin:10px 10px 0 0; font-family:'Times New Roman',serif; color:#0a0a0a; }
+.art-cta { margin-top:32px; padding-top:24px; border-top:1px solid #eee; display:flex; align-items:center; gap:20px; flex-wrap:wrap; }
+.art-original { display:inline-block; padding:12px 28px; background:#0a0a0a; color:#fff; font-family:Arial,sans-serif; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.12em; transition:background 0.12s; }
+.art-original:hover { background:#b00020; }
+.art-note { font-family:Arial,sans-serif; font-size:11px; color:#aaa; line-height:1.7; }
+.art-loading { text-align:center; padding:80px 20px; }
+.art-loading .spinner { margin:0 auto 16px; }
+.art-loading p { font-family:Arial,sans-serif; font-size:13px; color:#aaa; }
+
+.disclaimer { background:#111; color:#666; padding:24px 20px; font-family:Arial,sans-serif; font-size:11px; line-height:1.85; }
+.disclaimer-inner { max-width:1240px; margin:0 auto; text-align:center; }
+.disclaimer strong { color:#999; }
+
+.footer { background:#0a0a0a; }
+.footer-inner { max-width:1240px; margin:0 auto; padding:18px 20px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; }
+.footer span { font-family:Arial,sans-serif; font-size:11px; color:#444; letter-spacing:0.05em; }
+
+@media(max-width:800px) {
+  .top-story { grid-template-columns:1fr; }
+  .top-story .card-img { order:1; min-height:220px; height:220px; }
+  .top-story .card-body { order:2; padding:16px; }
+  .top-story .card-headline { font-size:22px; }
+  .card-row { grid-template-columns:1fr; }
+  .card-row-2 { grid-template-columns:1fr; }
+  .logo { font-size:34px; }
+  .search-wrap { width:100%; }
+  .search-wrap input { flex:1; width:100%; }
+  .header-inner { flex-direction:column; align-items:flex-start; }
+  .topbar-inner { flex-direction:column; gap:4px; text-align:center; }
+}
+</style>
+</head>
+<body>
+
+<div id="articlePage">
+  <div class="art-topbar">
+    <div class="art-topbar-inner">
+      <button class="art-back" onclick="closeArticle()">← Back</button>
+      <div class="art-logo">The Pro <span>Drafter</span></div>
+      <span class="art-date-top" id="artDate"></span>
+    </div>
+  </div>
+  <div id="articleContent"></div>
+</div>
+
+<div id="mainPage">
+  <div class="topbar">
+    <div class="topbar-inner">
+      <span id="dateStr"></span>
+      <div class="topbar-right">
+        <span>Independent News Aggregator</span>
+        <span>Verify With Original Publisher</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="header">
+    <div class="header-inner">
+      <div>
+        <div class="logo">The Pro <span>Drafter</span></div>
+        <div class="logo-rule"></div>
+        <div class="logo-sub">Independent — Unaffiliated — Real Sources</div>
+      </div>
+      <div class="search-wrap">
+        <input type="text" id="searchInput" placeholder="Search topics, people, events…" onkeydown="if(event.key==='Enter') doSearch()">
+        <button onclick="doSearch()">Search</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="ticker-wrap" id="tickerWrap">
+    <div class="ticker-inner">
+      <div class="ticker-label">Breaking News</div>
+      <div class="ticker-scroll">
+        <div class="ticker-track" id="tickerTrack"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="nav-wrap">
+    <div class="nav-inner" id="nav">
+      <a href="#" class="active" data-s="world">World</a>
+      <a href="#" data-s="politics">Politics</a>
+      <a href="#" data-s="technology">Technology</a>
+      <a href="#" data-s="business">Business</a>
+      <a href="#" data-s="science">Science</a>
+      <a href="#" data-s="sports">Sports</a>
+      <a href="#" data-s="crypto">Crypto</a>
+      <a href="#" data-s="entertainment">Entertainment</a>
+      <a href="#" data-s="space">Space</a>
+      <a href="#" data-s="health">Health</a>
+      <a href="#" data-s="environment">Environment</a>
+      <a href="#" data-s="finance">Finance</a>
+      <a href="#" data-s="war">War & Conflict</a>
+      <a href="#" data-s="ai">Artificial Intelligence</a>
+    </div>
+  </div>
+
+  <div class="page">
+    <div class="section-bar">
+      <h2 id="sectionTitle">World News</h2>
+      <div class="section-bar-right">
+        <span class="updated" id="updatedInline"></span>
+        <button class="refresh-btn" id="refreshBtn" onclick="reload()">Refresh</button>
+      </div>
+    </div>
+    <div id="container"></div>
+
+    <div class="disclaimer" style="margin-top:40px;">
+      <div class="disclaimer-inner">
+        <strong>DISCLAIMER:</strong> The Pro Drafter is an independent news aggregator service. All articles, images, and content are sourced from third-party publishers and news organisations. The Pro Drafter is not affiliated with, endorsed by, or connected to any news agency, media outlet, or publisher. All trademarks, images, headlines, and editorial content remain the intellectual property of their respective owners. Always verify all information directly with the original source before acting on it.
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div class="footer-inner">
+      <span>© The Pro Drafter — Independent News Aggregator</span>
+      <span>Not affiliated with any news organisation</span>
+    </div>
+  </div>
+</div>
+
+<script>
+const LABELS = {
+  world:'World News', politics:'Politics', technology:'Technology',
+  business:'Business', science:'Science', sports:'Sports',
+  crypto:'Crypto', entertainment:'Entertainment', space:'Space',
+  health:'Health', environment:'Environment', finance:'Finance',
+  war:'War & Conflict', ai:'Artificial Intelligence'
+};
+
+const JUNK = [
+  'admit card','answer key','result 2025','result 2026','recruitment','vacancy',
+  'syllabus','exam date','sarkari','application form','hall ticket','cut off',
+  'merit list','counselling','notification pdf','download pdf','ssc','upsc',
+  'neet','jee','ibps','rrb','railway recruitment','scorecard'
+];
+
+let current = 'world';
+let currentStories = [];
+
+document.getElementById('dateStr').textContent =
+  new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+
+document.getElementById('nav').addEventListener('click', e => {
+  e.preventDefault();
+  const a = e.target.closest('a');
+  if (!a || !a.dataset.s) return;
+  document.querySelectorAll('.nav-inner a').forEach(x => x.classList.remove('active'));
+  a.classList.add('active');
+  load(a.dataset.s);
+});
+
+function isJunk(s) {
+  const t = (s.headline + ' ' + (s.deck||'')).toLowerCase();
+  return JUNK.some(k => t.includes(k));
+}
+
+function getBadge(s) {
+  const t = (s.headline + ' ' + (s.deck||'')).toLowerCase();
+  const age = s.publishedAt ? (Date.now() - new Date(s.publishedAt)) / 60000 : 9999;
+  if (age < 90) return '<span class="card-badge badge-breaking">Breaking</span>';
+  if (t.includes('update') || t.includes('develop') || t.includes('ongoing')) return '<span class="card-badge badge-developing">Developing</span>';
+  if (t.includes('analysis') || t.includes('opinion') || t.includes('explainer')) return '<span class="card-badge badge-analysis">Analysis</span>';
+  return '';
+}
+
+function timeAgo(d) {
+  if (!d) return '';
+  const diff = Math.floor((Date.now() - new Date(d)) / 60000);
+  if (diff < 60) return diff + ' min ago';
+  if (diff < 1440) return Math.floor(diff/60) + ' hrs ago';
+  return Math.floor(diff/1440) + ' days ago';
+}
+
+function renderTicker(stories) {
+  const wrap = document.getElementById('tickerWrap');
+  const track = document.getElementById('tickerTrack');
+  if (!stories.length) { wrap.style.display='none'; return; }
+  const doubled = [...stories, ...stories];
+  track.innerHTML = doubled.map((s,i) =>
+    `<span class="ticker-item" onclick="openArticle(${i % stories.length})"> — ${s.headline}</span>`
+  ).join('');
+  wrap.style.display = 'block';
+}
+
+function makeCard(s, i, extraClass, imgHeight) {
+  const img = s.image
+    ? `<div class="card-img" style="height:${imgHeight}px"><img src="${s.image}" alt="" loading="lazy" onerror="this.parentElement.style.display='none'"></div>`
+    : '';
+  return `<div class="card ${extraClass}" onclick="openArticle(${i})">
+    ${img}
+    <div class="card-body">
+      <div class="card-eyebrow">
+        <span class="card-source">${s.source}</span>${getBadge(s)}
+      </div>
+      <div class="card-headline">${s.headline}</div>
+      ${s.deck ? `<div class="card-deck">${s.deck}</div>` : ''}
+      <div class="card-meta">${timeAgo(s.publishedAt)}</div>
+    </div>
+  </div>`;
+}
+
+function makeInline(s, i) {
+  const img = s.image
+    ? `<div class="card-img"><img src="${s.image}" alt="" loading="lazy" onerror="this.parentElement.style.display='none'"></div>`
+    : '';
+  return `<div class="card-inline" onclick="openArticle(${i})">
+    ${img}
+    <div class="card-body">
+      <div class="card-eyebrow">
+        <span class="card-source">${s.source}</span>${getBadge(s)}
+      </div>
+      <div class="card-headline">${s.headline}</div>
+      <div class="card-meta">${timeAgo(s.publishedAt)}</div>
+    </div>
+  </div>`;
+}
+
+function renderGrid(stories) {
+  const filtered = stories.filter(s => !isJunk(s));
+  currentStories = filtered.length >= 3 ? filtered : stories;
+
+  if (!currentStories.length) {
+    document.getElementById('container').innerHTML = `<div class="error-msg">No stories found. Try refreshing.</div>`;
+    return;
+  }
+
+  renderTicker(currentStories);
+
+  const now = new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+  document.getElementById('updatedInline').textContent = 'Updated ' + now;
+
+  const s = currentStories;
+  let html = '<div class="news-feed">';
+
+  // Top story — full width horizontal
+  if (s[0]) {
+    const img = s[0].image
+      ? `<div class="card-img"><img src="${s[0].image}" alt="" loading="lazy" onerror="this.parentElement.style.display='none'"></div>`
+      : '';
+    html += `<div class="top-story" onclick="openArticle(0)">
+      <div class="card-body">
+        <div class="card-eyebrow">
+          <span class="card-source">${s[0].source}</span>${getBadge(s[0])}
+        </div>
+        <div class="card-headline">${s[0].headline}</div>
+        ${s[0].deck ? `<div class="card-deck">${s[0].deck}</div>` : ''}
+        <div class="card-meta">${timeAgo(s[0].publishedAt)}</div>
+      </div>
+      ${img}
+    </div>`;
+  }
+
+  // Row of 3
+  if (s.length > 1) {
+    html += '<div class="card-row">';
+    [1,2,3].forEach(i => { if (s[i]) html += makeCard(s[i], i, 'tall', 200); });
+    html += '</div>';
+  }
+
+  // Row of 2 wide
+  if (s.length > 4) {
+    html += '<div class="card-row-2">';
+    [4,5].forEach(i => { if (s[i]) html += makeCard(s[i], i, 'tall', 220); });
+    html += '</div>';
+  }
+
+  // Remaining as inline list
+  if (s.length > 6) {
+    html += '<div style="background:#fff;padding:8px 0;">';
+    for (let i = 6; i < Math.min(s.length, 12); i++) {
+      html += makeInline(s[i], i);
+    }
+    html += '</div>';
+  }
+
+  html += '</div>';
+  document.getElementById('container').innerHTML = html;
+}
+
+async function openArticle(i) {
+  const s = currentStories[i];
+  if (!s) return;
+
+  document.getElementById('mainPage').style.display = 'none';
+  document.getElementById('articlePage').classList.add('open');
+  window.scrollTo(0,0);
+
+  document.getElementById('artDate').textContent = s.publishedAt
+    ? new Date(s.publishedAt).toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'})
+    : '';
+
+  document.getElementById('articleContent').innerHTML = `
+    <div class="art-loading"><div class="spinner"></div><p>Loading article…</p></div>`;
+
+  let body = '';
+  if (s.url) {
+    try {
+      const r = await fetch('/api/scrape?url=' + encodeURIComponent(s.url));
+      const d = await r.json();
+      if (d.body) body = d.body;
+    } catch(e) {}
+  }
+
+  if (!body) body = `<p>${s.deck || 'Full article not available. Please visit the original source.'}</p>`;
+
+  const dateStr = s.publishedAt
+    ? new Date(s.publishedAt).toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'})
+    : '';
+
+  document.getElementById('articleContent').innerHTML = `
+    ${s.image ? `<div class="art-hero-wrap"><img class="art-hero" src="${s.image}" alt="" onerror="this.parentElement.style.display='none'"></div>` : ''}
+    <div class="art-body-wrap">
+      <div class="art-kicker">${s.source}</div>
+      <h1 class="art-headline">${s.headline}</h1>
+      <div class="art-meta">
+        <span class="art-meta-source">${s.source}</span>
+        ${dateStr ? `<span>${dateStr}</span>` : ''}
+      </div>
+      ${s.deck ? `<div class="art-deck">${s.deck}</div>` : ''}
+      <div class="art-text">${body}</div>
+      <div class="art-cta">
+        ${s.url ? `<a class="art-original" href="${s.url}" target="_blank" rel="noopener">Read original at ${s.source}</a>` : ''}
+        <span class="art-note">This article was aggregated from ${s.source}.<br>The Pro Drafter is not affiliated with ${s.source}.</span>
+      </div>
+    </div>
+    <div class="disclaimer">
+      <div class="disclaimer-inner">
+        <strong>DISCLAIMER:</strong> This content was sourced from ${s.source}. The Pro Drafter is an independent news aggregator and is not affiliated with, endorsed by, or connected to ${s.source} or any news organisation. All content remains the property of the original publisher. Always verify information directly with the original source.
+      </div>
+    </div>`;
+}
+
+function closeArticle() {
+  document.getElementById('articlePage').classList.remove('open');
+  document.getElementById('mainPage').style.display = 'block';
+  window.scrollTo(0,0);
+}
+
+async function doSearch() {
+  const q = document.getElementById('searchInput').value.trim();
+  if (!q) return;
+  document.querySelectorAll('.nav-inner a').forEach(x => x.classList.remove('active'));
+  document.getElementById('sectionTitle').textContent = 'Search: ' + q;
+  document.getElementById('refreshBtn').disabled = true;
+  document.getElementById('container').innerHTML = `
+    <div class="loading"><div class="spinner"></div><p>Searching for "${q}"…</p></div>`;
+  try {
+    const res = await fetch('/api/news?section=' + encodeURIComponent(q));
+    const data = await res.json();
+    if (!res.ok || data.error) throw new Error(data.error || 'Server error');
+    renderGrid(data.stories);
+  } catch(err) {
+    document.getElementById('container').innerHTML = `<div class="error-msg">Search failed: ${err.message}</div>`;
+  } finally {
+    document.getElementById('refreshBtn').disabled = false;
+  }
+}
+
+async function load(section) {
+  current = section;
+  document.getElementById('sectionTitle').textContent = LABELS[section] || section;
+  document.getElementById('refreshBtn').disabled = true;
+  document.getElementById('container').innerHTML = `
+    <div class="loading"><div class="spinner"></div><p>Loading ${LABELS[section] || section}…</p></div>`;
+  try {
+    const res = await fetch('/api/news?section=' + encodeURIComponent(section));
+    const data = await res.json();
+    if (!res.ok || data.error) throw new Error(data.error || 'Server error');
+    renderGrid(data.stories);
+  } catch(err) {
+    document.getElementById('container').innerHTML = `<div class="error-msg">Failed to load: ${err.message}</div>`;
+  } finally {
+    document.getElementById('refreshBtn').disabled = false;
+  }
+}
+
+function reload() { load(current); }
+load('world');
+</script>
+</body>
+</html>
