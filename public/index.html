@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Dispatch</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family: Georgia, 'Times New Roman', serif; background:#f4f4f4; color:#111; }
+a { text-decoration:none; color:inherit; }
+
+/* TOP BAR */
+.topbar { background:#111; color:#999; padding:6px 20px; font-size:11px; font-family: Arial, sans-serif; display:flex; justify-content:space-between; }
+
+/* HEADER */
+.header { background:#fff; padding:20px; text-align:center; border-bottom:4px solid #111; }
+.logo { font-size:48px; font-weight:900; font-family: 'Times New Roman', serif; letter-spacing:-2px; }
+.logo span { color:#c00; }
+.header-sub { font-family: Arial, sans-serif; font-size:11px; color:#888; letter-spacing:0.2em; text-transform:uppercase; margin-top:4px; }
+
+/* NAV */
+.nav { background:#111; overflow-x:auto; white-space:nowrap; scrollbar-width:none; }
+.nav::-webkit-scrollbar { display:none; }
+.nav a { display:inline-block; padding:11px 18px; font-size:12px; font-weight:700; color:#ccc; font-family:Arial,sans-serif; text-transform:uppercase; letter-spacing:0.08em; border-bottom:3px solid transparent; }
+.nav a:hover, .nav a.active { color:#fff; border-bottom-color:#c00; }
+
+/* BREAKING BAR */
+.breaking { background:#c00; color:#fff; padding:8px 20px; font-family:Arial,sans-serif; font-size:12px; font-weight:700; display:none; }
+.breaking span { background:#fff; color:#c00; padding:2px 6px; margin-right:10px; font-size:10px; }
+
+/* CONTAINER */
+.container { max-width:1200px; margin:0 auto; padding:20px 16px; }
+
+.section-bar { display:flex; justify-content:space-between; align-items:center; border-bottom:3px solid #111; padding-bottom:8px; margin-bottom:20px; }
+.section-bar h2 { font-size:22px; font-weight:900; font-family:Arial,sans-serif; text-transform:uppercase; }
+.refresh-btn { background:#111; color:#fff; border:none; padding:8px 20px; font-size:11px; font-weight:700; font-family:Arial,sans-serif; text-transform:uppercase; letter-spacing:0.1em; cursor:pointer; }
+.refresh-btn:hover { background:#c00; }
+.refresh-btn:disabled { background:#999; cursor:not-allowed; }
+
+/* NEWS GRID */
+.grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:#ddd; border:1px solid #ddd; }
+
+.card { background:#fff; cursor:pointer; overflow:hidden; }
+.card:hover .card-headline { color:#c00; }
+
+.card-img { width:100%; height:200px; overflow:hidden; background:#e8e8e8; }
+.card-img img { width:100%; height:100%; object-fit:cover; transition:transform 0.3s; }
+.card:hover .card-img img { transform:scale(1.03); }
+.card-img .no-img { width:100%; height:100%; display:flex; align-items:center; justify-content:center; background:#e8e8e8; }
+.card-img .no-img svg { opacity:0.3; }
+
+.card-body { padding:14px; }
+.card-source { font-family:Arial,sans-serif; font-size:10px; font-weight:700; color:#c00; text-transform:uppercase; letter-spacing:0.1em; margin-bottom:6px; }
+.card-headline { font-size:17px; font-weight:700; line-height:1.3; margin-bottom:8px; font-family:'Times New Roman',serif; transition:color 0.15s; }
+.card-deck { font-size:13px; line-height:1.5; color:#555; font-family:Arial,sans-serif; margin-bottom:8px; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+.card-meta { font-family:Arial,sans-serif; font-size:11px; color:#999; }
+
+/* LEAD CARD */
+.card.lead { grid-column:span 2; }
+.card.lead .card-img { height:380px; }
+.card.lead .card-headline { font-size:26px; line-height:1.2; }
+.card.lead .card-body { padding:20px; }
+
+/* LOADING */
+.loading { text-align:center; padding:80px 0; background:#fff; }
+.spinner { width:32px; height:32px; border:3px solid #eee; border-top-color:#c00; border-radius:50%; animation:spin 0.7s linear infinite; margin:0 auto 14px; }
+@keyframes spin { to{transform:rotate(360deg)} }
+.loading p { font-family:Arial,sans-serif; font-size:13px; color:#888; }
+
+/* ERROR */
+.error { background:#fff; border-left:4px solid #c00; padding:20px 24px; font-family:Arial,sans-serif; font-size:13px; color:#c00; margin:4px 0; }
+
+/* ARTICLE VIEW */
+#articlePage { display:none; background:#fff; min-height:100vh; }
+#articlePage.open { display:block; }
+.art-topbar { background:#111; color:#fff; padding:12px 20px; display:flex; align-items:center; gap:16px; font-family:Arial,sans-serif; }
+.art-back { background:none; border:1px solid #555; color:#fff; padding:6px 14px; font-size:12px; font-weight:700; cursor:pointer; text-transform:uppercase; letter-spacing:0.08em; }
+.art-back:hover { background:#c00; border-color:#c00; }
+.art-logo { font-size:20px; font-weight:900; font-family:'Times New Roman',serif; }
+.art-logo span { color:#c00; }
+
+.art-hero { width:100%; max-height:500px; object-fit:cover; display:block; }
+.art-hero-placeholder { width:100%; height:300px; background:#e8e8e8; }
+
+.art-wrap { max-width:740px; margin:0 auto; padding:36px 20px 60px; }
+.art-source { font-family:Arial,sans-serif; font-size:11px; font-weight:700; color:#c00; text-transform:uppercase; letter-spacing:0.12em; margin-bottom:12px; }
+.art-headline { font-size:clamp(26px,4vw,42px); font-weight:900; line-height:1.1; font-family:'Times New Roman',serif; margin-bottom:16px; }
+.art-deck { font-size:19px; line-height:1.6; color:#333; font-family:Georgia,serif; border-top:3px solid #111; border-bottom:1px solid #ddd; padding:16px 0; margin-bottom:24px; }
+.art-meta { font-family:Arial,sans-serif; font-size:12px; color:#888; margin-bottom:24px; }
+.art-body p { font-size:17px; line-height:1.85; color:#222; font-family:Georgia,serif; margin-bottom:20px; }
+.art-body p:first-child::first-letter { font-size:52px; font-weight:900; float:left; line-height:0.85; margin:6px 8px 0 0; font-family:'Times New Roman',serif; color:#111; }
+.art-original { display:inline-block; margin-top:24px; padding:12px 28px; background:#111; color:#fff; font-family:Arial,sans-serif; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; border:none; cursor:pointer; }
+.art-original:hover { background:#c00; }
+
+.art-loading { text-align:center; padding:60px 20px; }
+.art-loading .spinner { margin:0 auto 14px; }
+.art-loading p { font-family:Arial,sans-serif; font-size:13px; color:#888; }
+
+/* DISCLAIMER */
+.disclaimer { background:#222; color:#888; padding:20px; text-align:center; font-family:Arial,sans-serif; font-size:11px; line-height:1.7; margin-top:40px; }
+.disclaimer strong { color:#bbb; }
+
+/* FOOTER */
+footer { background:#111; color:#666; text-align:center; padding:16px; font-family:Arial,sans-serif; font-size:11px; }
+
+@media(max-width:768px) {
+  .card.lead { grid-column:span 3; }
+  .card.lead .card-img { height:220px; }
+  .card { grid-column:span 3; }
+  .logo { font-size:36px; }
+}
+@media(min-width:769px) and (max-width:1024px) {
+  .card { grid-column:span 1; }
+  .card.lead { grid-column:span 2; }
+}
+</style>
+</head>
+<body>
+
+<!-- ARTICLE PAGE -->
+<div id="articlePage">
+  <div class="art-topbar">
+    <button class="art-back" onclick="closeArticle()">← Back</button>
+    <div class="art-logo">The <span>Dispatch</span></div>
+  </div>
+  <div id="articleContent"></div>
+</div>
+
+<!-- MAIN PAGE -->
+<div id="mainPage">
+  <div class="topbar">
+    <span id="dateStr"></span>
+    <span id="updated"></span>
+  </div>
+
+  <div class="header">
+    <div class="logo">The <span>Dispatch</span></div>
+    <div class="header-sub">Breaking News · Live Updates · Real Sources</div>
+  </div>
+
+  <div class="nav" id="nav">
+    <a href="#" class="active" data-s="world">World</a>
+    <a href="#" data-s="politics">Politics</a>
+    <a href="#" data-s="technology">Technology</a>
+    <a href="#" data-s="business">Business</a>
+    <a href="#" data-s="science">Science</a>
+    <a href="#" data-s="sports">Sports</a>
+    <a href="#" data-s="crypto">Crypto</a>
+    <a href="#" data-s="entertainment">Entertainment</a>
+    <a href="#" data-s="space">Space</a>
+  </div>
+
+  <div class="container">
+    <div class="section-bar">
+      <h2 id="sectionTitle">World News</h2>
+      <button class="refresh-btn" id="refreshBtn" onclick="reload()">↻ Refresh</button>
+    </div>
+    <div id="container"></div>
+
+    <div class="disclaimer">
+      <strong>DISCLAIMER:</strong> The Dispatch is a news aggregator service. All articles are sourced from third-party news outlets.
+      We are not affiliated with, endorsed by, or connected to any news agency or media organisation.
+      All trademarks and content belong to their respective owners.
+      Always verify news directly with the original source before acting on any information.
+    </div>
+  </div>
+
+  <footer>© The Dispatch — News Aggregator — Not affiliated with any news organisation</footer>
+</div>
+
+<script>
+const LABELS = {
+  world:'World News', politics:'Politics', technology:'Technology',
+  business:'Business', science:'Science', sports:'Sports',
+  crypto:'Crypto', entertainment:'Entertainment', space:'Space'
+};
+const LAYOUTS = ['lead','','','','',''];
+let current = 'world';
+let currentStories = [];
+
+document.getElementById('dateStr').textContent =
+  new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+
+document.getElementById('nav').addEventListener('click', e => {
+  e.preventDefault();
+  const a = e.target.closest('a');
+  if (!a) return;
+  document.querySelectorAll('.nav a').forEach(x => x.classList.remove('active'));
+  a.classList.add('active');
+  load(a.dataset.s);
+});
+
+function timeAgo(d) {
+  if (!d) return '';
+  const diff = Math.floor((Date.now() - new Date(d)) / 60000);
+  if (diff < 60) return diff + ' min ago';
+  if (diff < 1440) return Math.floor(diff/60) + ' hrs ago';
+  return Math.floor(diff/1440) + ' days ago';
+}
+
+function noImg() {
+  return `<div class="no-img"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></div>`;
+}
+
+function renderGrid(stories) {
+  currentStories = stories;
+  if (!stories.length) {
+    document.getElementById('container').innerHTML = `<div class="error">No stories found. Try refreshing.</div>`;
+    return;
+  }
+
+  const html = `<div class="grid">
+    ${stories.map((s,i) => {
+      const cls = i === 0 ? 'card lead' : 'card';
+      const imgHtml = s.image
+        ? `<img src="${s.image}" alt="${s.headline}" loading="lazy" onerror="this.parentElement.innerHTML='${noImg().replace(/'/g,"&#39;")}'"/>`
+        : noImg();
+      return `
+        <div class="${cls}" onclick="openArticle(${i})">
+          <div class="card-img">${imgHtml}</div>
+          <div class="card-body">
+            <div class="card-source">${s.source}</div>
+            <div class="card-headline">${s.headline}</div>
+            ${s.deck ? `<div class="card-deck">${s.deck}</div>` : ''}
+            <div class="card-meta">${timeAgo(s.publishedAt)}</div>
+          </div>
+        </div>`;
+    }).join('')}
+  </div>`;
+
+  document.getElementById('container').innerHTML = html;
+  document.getElementById('updated').textContent =
+    'Updated ' + new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+}
+
+async function openArticle(i) {
+  const s = currentStories[i];
+  if (!s) return;
+
+  document.getElementById('mainPage').style.display = 'none';
+  document.getElementById('articlePage').classList.add('open');
+  window.scrollTo(0,0);
+
+  document.getElementById('articleContent').innerHTML = `
+    <div class="art-loading">
+      <div class="spinner"></div>
+      <p>Loading full article…</p>
+    </div>`;
+
+  let body = '';
+  let scraped = false;
+
+  if (s.url) {
+    try {
+      const r = await fetch(`/api/scrape?url=${encodeURIComponent(s.url)}`);
+      const d = await r.json();
+      body = d.body;
+      scraped = d.scraped;
+    } catch(e) {}
+  }
+
+  if (!body) body = `<p>${s.deck || 'Full article not available.'}</p>`;
+
+  const dateStr = s.publishedAt
+    ? new Date(s.publishedAt).toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric',hour:'2-digit',minute:'2-digit'})
+    : '';
+
+  document.getElementById('articleContent').innerHTML = `
+    ${s.image ? `<img class="art-hero" src="${s.image}" onerror="this.style.display='none'" alt="${s.headline}">` : '<div class="art-hero-placeholder"></div>'}
+    <div class="art-wrap">
+      <div class="art-source">${s.source}</div>
+      <h1 class="art-headline">${s.headline}</h1>
+      ${dateStr ? `<div class="art-meta">${dateStr}</div>` : ''}
+      ${s.deck ? `<div class="art-deck">${s.deck}</div>` : ''}
+      <div class="art-body">${body}</div>
+      ${s.url ? `<a class="art-original" href="${s.url}" target="_blank" rel="noopener">Read original at ${s.source} →</a>` : ''}
+    </div>
+    <div class="disclaimer" style="margin-top:0">
+      <strong>DISCLAIMER:</strong> This article was sourced from ${s.source}. The Dispatch is a news aggregator and is not affiliated with ${s.source} or any news organisation. Verify all information directly with the original source.
+    </div>`;
+}
+
+function closeArticle() {
+  document.getElementById('articlePage').classList.remove('open');
+  document.getElementById('mainPage').style.display = 'block';
+  window.scrollTo(0,0);
+}
+
+async function load(section) {
+  current = section;
+  document.getElementById('sectionTitle').textContent = LABELS[section] || section;
+  document.getElementById('refreshBtn').disabled = true;
+  document.getElementById('container').innerHTML = `
+    <div class="loading">
+      <div class="spinner"></div>
+      <p>Loading ${LABELS[section]}…</p>
+    </div>`;
+
+  try {
+    const res = await fetch(`/api/news?section=${encodeURIComponent(section)}`);
+    const data = await res.json();
+    if (!res.ok || data.error) throw new Error(data.error || 'Server error');
+    renderGrid(data.stories);
+  } catch(err) {
+    document.getElementById('container').innerHTML = `<div class="error">⚠ ${err.message}</div>`;
+  } finally {
+    document.getElementById('refreshBtn').disabled = false;
+  }
+}
+
+function reload() { load(current); }
+load('world');
+</script>
+</body>
+</html>
